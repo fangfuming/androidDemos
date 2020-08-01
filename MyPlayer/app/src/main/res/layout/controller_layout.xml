@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/controllerFrame"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:layout_marginBottom="4dp"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+
+        <ImageView
+            android:layout_marginStart="12dp"
+            android:id="@+id/playImage"
+            android:src="@drawable/ic_play_arrow_black_24dp"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <SeekBar
+            android:secondaryProgressTint="@color/colorPrimary"
+            android:id="@+id/seekBar"
+            android:progressBackgroundTint="#ffffff"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="12" />
+    </LinearLayout>
+</FrameLayout>
