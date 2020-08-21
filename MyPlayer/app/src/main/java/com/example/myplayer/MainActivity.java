@@ -4,11 +4,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -17,6 +21,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.myplayer.viewModel.MediaPlayerViewModel;
 
@@ -34,6 +40,9 @@ public class MainActivity extends AppCompatActivity {
     private FrameLayout controllerFrame;
     private SeekBar mSeekBar;
     private ImageView mPlayStatusImage;
+    private TextView currentTimeTv;
+    private TextView allTimeTv;
+    private ImageView changeDirection;
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
@@ -52,7 +61,15 @@ public class MainActivity extends AppCompatActivity {
         initEvent();
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void initEvent() {
+
+        mViewModel.getAllTime().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                allTimeTv.setText(s);
+            }
+        });
 
         /**
          * 缓存过程中的转圈圈是否可见
@@ -105,12 +122,57 @@ public class MainActivity extends AppCompatActivity {
             public void surfaceDestroyed(SurfaceHolder holder) {}
         });
 
-        playerFrame.setOnClickListener(new View.OnClickListener() {
+//        playerFrame.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                mViewModel.toggleControllerVisibility();
+//            }
+//        });
+
+        playerFrame.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View v) {
-                mViewModel.toggleControllerVisibility();
+            public boolean onTouch(View v, MotionEvent event) {
+                gestureDetector.onTouchEvent(event);
+                return true;
+
             }
+                GestureDetector gestureDetector = new GestureDetector(MainActivity.this, new GestureDetector.SimpleOnGestureListener() {
+
+                    /**
+                     * 发生确定的单击时执行
+                     * @param e
+                     * @return
+                     */
+                    @Override
+                    public boolean onSingleTapConfirmed(MotionEvent e) {//单击事件
+
+                        mViewModel.toggleControllerVisibility(); //是否出现下方控制条
+                        return super.onSingleTapConfirmed(e);
+                    }
+
+                    /**
+                     * 双击发生时的通知
+                     * @param e
+                     * @return
+                     */
+                    @Override
+                    public boolean onDoubleTap(MotionEvent e) {//双击事件
+                        mViewModel.togglePlayerStatus();
+                        return super.onDoubleTap(e);
+                    }
+
+                    /**
+                     * 双击手势过程中发生的事件，包括按下、移动和抬起事件
+                     * @param e
+                     * @return
+                     */
+                    @Override
+                    public boolean onDoubleTapEvent(MotionEvent e) {
+                        return super.onDoubleTapEvent(e);
+                    }
+                });
         });
+
 
         mViewModel.getBufferPercent().observe(this, new Observer<Integer>() {
             @Override
@@ -161,6 +223,19 @@ public class MainActivity extends AppCompatActivity {
                 mViewModel.togglePlayerStatus();
             }
         });
+
+        //切换横竖屏
+        changeDirection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    //横屏 切换为竖屏
+                    MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                }else if(getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT){
+                    MainActivity.this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                }
+            }
+        });
     }
 
     private void initView() {
@@ -170,6 +245,9 @@ public class MainActivity extends AppCompatActivity {
         mSeekBar = findViewById(R.id.seekBar);
         mPlayStatusImage = findViewById(R.id.playImage);
         controllerFrame = findViewById(R.id.controllerFrame);
+        allTimeTv = findViewById(R.id.allTimeTv);
+        changeDirection = findViewById(R.id.change_direction);
+        currentTimeTv = findViewById(R.id.currentTimeTv);
         mViewModel = new ViewModelProvider(this).get(MediaPlayerViewModel.class);
         mViewModel.setMainActivity(this);
 
@@ -198,6 +276,24 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void run() {
                                     mSeekBar.setProgress(mViewModel.getMediaPlayer().getCurrentPosition());
+                                }
+                            });
+                            currentTimeTv.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    int currentPosition = mViewModel.getMediaPlayer().getCurrentPosition();
+                                    float second = currentPosition / 1000f; //秒
+                                    int showSec = (int) (second % 60);
+                                    boolean secAddZero = false;
+                                    boolean minAddZero = false;
+                                    if ((showSec / 10) == 0) {
+                                        secAddZero = true;
+                                    }
+                                    int showMin = (int) (second / 60);
+                                    if ((showMin / 10) == 0) {
+                                        minAddZero = true;
+                                    }
+                                    currentTimeTv.setText(String.format("%s:%s",minAddZero?"0"+showMin:showMin,secAddZero?"0"+showSec:showSec));
                                 }
                             });
                         } catch (InterruptedException e) {

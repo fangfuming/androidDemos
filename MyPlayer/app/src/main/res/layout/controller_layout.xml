@@ -20,6 +20,16 @@
             android:layout_height="match_parent"
             android:layout_weight="1" />
 
+        <TextView
+            android:textSize="14sp"
+            android:textColor="@android:color/white"
+            android:gravity="center"
+            android:id="@+id/currentTimeTv"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="0:00" />
+
         <SeekBar
             android:secondaryProgressTint="@color/colorPrimary"
             android:id="@+id/seekBar"
@@ -27,5 +37,24 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="12" />
+
+        <TextView
+            android:textSize="14sp"
+            android:textColor="@android:color/white"
+            android:gravity="center"
+            android:id="@+id/allTimeTv"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="0:00" />
+
+        <ImageView
+            android:id="@+id/change_direction"
+            android:src="@drawable/change_direction"
+            android:layout_gravity="center"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 </FrameLayout>

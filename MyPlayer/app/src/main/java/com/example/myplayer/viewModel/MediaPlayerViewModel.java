@@ -1,5 +1,6 @@
 package com.example.myplayer.viewModel;
 
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
 import android.media.MediaPlayer;
@@ -23,6 +24,8 @@ import java.util.TimerTask;
  */
     public class MediaPlayerViewModel extends ViewModel {
 
+    private Timer mTimer;
+
     public enum PlayerStatus{
         Playing,
         Pause,
@@ -41,7 +44,15 @@ import java.util.TimerTask;
     private MutableLiveData<Integer> controllerViewVisible = new MutableLiveData<>(View.VISIBLE); //下方控制条可见
     private MutableLiveData<Point> videoResolution = new MutableLiveData<>();
     private MutableLiveData<PlayerStatus> playerStatus = new MutableLiveData<>(PlayerStatus.NotReady);
+    private  MutableLiveData<String> allTime = new MutableLiveData<>("0:00"); //总的时间
 
+    public MutableLiveData<String> getAllTime() {
+        return allTime;
+    }
+
+    public void setAllTime(MutableLiveData<String> allTime) {
+        this.allTime = allTime;
+    }
 
     public void setProgressBarVisible(MutableLiveData<Integer> progressBarVisible) {
         this.progressBarVisible = progressBarVisible;
@@ -101,6 +112,21 @@ import java.util.TimerTask;
                 progressBarVisible.setValue(View.INVISIBLE);
                 mMediaPlayer.start();
                 playerStatus.setValue(PlayerStatus.Playing);
+                int duration = mp.getDuration(); //毫秒
+                float second = duration / 1000f; //秒
+                int showSec = (int) (second % 60);
+                int showMin = (int) (second / 60);
+
+
+                boolean secAddZero = false;
+                boolean minAddZero = false;
+                if ((showSec / 10) == 0) {
+                    secAddZero = true;
+                }
+                if ((showMin / 10) == 0) {
+                    minAddZero = true;
+                }
+                allTime.setValue(String.format("%s:%s",minAddZero?"0"+showMin:showMin,secAddZero?"0"+showSec:showSec));
             }
         });
 
@@ -163,11 +189,15 @@ import java.util.TimerTask;
 
     //
     public void toggleControllerVisibility(){
+        if (mTimer != null) {
+            mTimer.cancel();
+            mTimer = null;
+        }
         if (View.INVISIBLE == controllerViewVisible.getValue()) {
             controllerViewVisible.setValue(View.VISIBLE);
             controllerViewShowTime = System.currentTimeMillis();
-            final Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
+            mTimer = new Timer();
+            mTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
                     if (System.currentTimeMillis() - controllerViewShowTime>6000) {
