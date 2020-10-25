@@ -1,5 +1,6 @@
 package com.example.mvvmdemo.api
 
+import com.example.mvvmdemo.bean.OnSellData
 import com.example.mvvmdemo.bean.ResultData
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -10,9 +11,9 @@ import retrofit2.http.Path
  */
 interface ApiService {
     companion object{
-        const val BASE_URL = "https://www.sunofbeach.net/shop/"
+        const val BASE_URL = "https://api.sunofbeach.net/shop/"
     }
 
     @GET("onSell/{page}")
-    suspend fun getOnSellList(@Path(value = "page") page:Int): ResultData<>
+    suspend fun getOnSellList(@Path("page") page:Int): ResultData<OnSellData>
 }
