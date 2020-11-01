@@ -4,6 +4,7 @@ import android.graphics.Rect
 import android.opengl.Visibility
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -11,6 +12,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.mvvmdemo.adapter.OnSellListAdapter
 import com.example.mvvmdemo.base.LoadState
+import com.lcodecore.tkrefreshlayout.RefreshListenerAdapter
+import com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout
 import kotlinx.android.synthetic.main.activity_on_sell.*
 import kotlinx.android.synthetic.main.state_on_error.*
 
@@ -59,6 +62,19 @@ class OnSellActivity :AppCompatActivity(){
         reloadLl.setOnClickListener{
             viewModel.loadContent()
         }
+
+
+
+        refreshLayout.run {
+            setEnableLoadmore(true)
+            setEnableRefresh(false)
+            setEnableOverScroll(true)
+            setOnRefreshListener(object :RefreshListenerAdapter(){
+                override fun onLoadMore(refreshLayout: TwinklingRefreshLayout?) {
+                    viewModel.loadMore()
+                }
+            })
+        }
     }
 
 
@@ -73,12 +89,31 @@ class OnSellActivity :AppCompatActivity(){
                 onSellListAdapter.setData(it)
             })
             loadState.observe(this@OnSellActivity, Observer {
-                hideAll()
+                if (it!=LoadState.LOADMORE_LOADING) {
+                    hideAll()
+                }
                 when(it){
                     LoadState.EMPTY-> emptyView.visibility = View.VISIBLE
                     LoadState.ERROR-> errorView.visibility = View.VISIBLE
-                    LoadState.SUCCESS-> recyclerView.visibility = View.VISIBLE
-                    else -> loadingView.visibility = View.VISIBLE
+                    LoadState.SUCCESS->
+                    {
+                        refreshLayout.visibility = View.VISIBLE
+                        refreshLayout.finishLoadmore()
+                    }
+                    LoadState.LOADMORE_ERROR->
+                    {
+                        refreshLayout.visibility = View.VISIBLE
+                        Toast.makeText(this@OnSellActivity,"请稍后重试",Toast.LENGTH_SHORT).show()
+                        refreshLayout.finishLoadmore()
+                    }
+                    LoadState.LOADMORE_EMPTY->
+                    {
+                        refreshLayout.visibility = View.VISIBLE
+                        Toast.makeText(this@OnSellActivity,"已经加载全部内容",Toast.LENGTH_SHORT).show()
+                        refreshLayout.finishLoadmore()
+                    }
+                    LoadState.LOADING -> loadingView.visibility = View.VISIBLE
+                    else ->{}
                 }
             })
         }
@@ -92,7 +127,7 @@ class OnSellActivity :AppCompatActivity(){
     }
 
     private fun hideAll(){
-        recyclerView.visibility = View.GONE
+        refreshLayout.visibility = View.GONE
         emptyView.visibility = View.GONE
         loadingView.visibility = View.GONE
         errorView.visibility = View.GONE

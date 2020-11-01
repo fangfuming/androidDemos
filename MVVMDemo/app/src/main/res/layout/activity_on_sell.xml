@@ -3,13 +3,20 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:overScrollMode="never"
-        android:background="#dfdfdf"
-        android:visibility="gone"
-        android:id="@+id/recyclerView"
+
+    <com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout
+        android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:visibility="gone"
+        android:background="#dfdfdf"
+        android:layout_height="match_parent">
+        <androidx.recyclerview.widget.RecyclerView
+            android:overScrollMode="never"
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout>
+
 
     <include android:layout_width="match_parent"
         layout="@layout/state_on_empty"

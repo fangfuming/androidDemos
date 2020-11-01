@@ -28,36 +28,52 @@ class OnSellViewModel :ViewModel() {
 
     private var mCurrentPage = 1 //默认第一页
 
-    val contentList = MutableLiveData<List<MapData>>()
+    val contentList = MutableLiveData<MutableList<MapData>>()
 
 
 
+    private var isLoadMore = false
 
     //加载首页内容
     fun loadContent(){
+        isLoadMore = false
+        loadState.value = LoadState.LOADING
         this.listContentByPage(mCurrentPage)
     }
 
 
+    /**
+     * 加载更多
+     */
+    fun loadMore(){
+        isLoadMore = true
+        loadState.value = LoadState.LOADMORE_LOADING
+        mCurrentPage++
+        listContentByPage(mCurrentPage)
+    }
+
+
     private fun listContentByPage(page:Int){
-        loadState.value = LoadState.LOADING
         viewModelScope.launch {
             try {
                 val sellList:OnSellData = repository.getSellList(page)
+                val oldList = contentList.value?: mutableListOf()
+                oldList.addAll(sellList.tbk_dg_optimus_material_response.result_list.map_data)
                 println("结果数量"+sellList.tbk_dg_optimus_material_response.result_list.map_data.size)
-                contentList.value = sellList.tbk_dg_optimus_material_response.result_list.map_data
+                contentList.value = oldList
                 if (sellList.tbk_dg_optimus_material_response.result_list.map_data.isEmpty()) {
-                    loadState.value = LoadState.EMPTY
+                    loadState.value = if(isLoadMore)LoadState.LOADMORE_EMPTY else LoadState.EMPTY
                 }else{
                     loadState.value = LoadState.SUCCESS
                 }
             }catch (e:Exception){
+                mCurrentPage--
                 e.printStackTrace()
                 if (e is NullPointerException) {
                     //todo 没有更多
-
+                    loadState.value = LoadState.LOADMORE_EMPTY
                 }else{
-                    loadState.value = LoadState.ERROR
+                    loadState.value =if(isLoadMore)LoadState.LOADMORE_ERROR else LoadState.ERROR
                 }
 
             }
@@ -67,8 +83,5 @@ class OnSellViewModel :ViewModel() {
         }
     }
 
-    fun loadMore(){
-
-    }
 
 }
