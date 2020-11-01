@@ -1,11 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <androidx.recyclerview.widget.RecyclerView
+        android:overScrollMode="never"
+        android:background="#dfdfdf"
+        android:visibility="gone"
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-</LinearLayout>
+    <include android:layout_width="match_parent"
+        layout="@layout/state_on_empty"
+        android:id="@+id/emptyView"
+        android:visibility="gone"
+        android:layout_height="match_parent"/>
+    <include android:layout_width="match_parent"
+        layout="@layout/state_on_error"
+        android:id="@+id/errorView"
+        android:visibility="gone"
+        android:layout_height="match_parent"/>
+    <include android:layout_width="match_parent"
+        layout="@layout/state_on_loading"
+        android:id="@+id/loadingView"
+        android:layout_height="match_parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

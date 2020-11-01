@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.mvvmdemo.R
 import com.example.mvvmdemo.bean.MapData
 import kotlinx.android.synthetic.main.item_on_sell.view.*
@@ -34,7 +35,11 @@ class OnSellListAdapter: RecyclerView.Adapter<OnSellListAdapter.InnerHolder>() {
         val item = mData[position]
 
         holder.itemView.apply {
-            title.text = item.title
+            with(item){
+                titleTv.text = title
+                offPriceTv.text = String.format("￥%.2f",zk_final_price.toFloat() - coupon_amount)
+                Glide.with(holder.itemView).load("https:$pict_url").into(imageView)
+            }
         }
     }
 
