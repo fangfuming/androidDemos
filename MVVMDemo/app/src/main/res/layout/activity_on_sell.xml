@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout
+        android:id="@+id/refreshLayout"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:background="#dfdfdf"
+        android:layout_height="match_parent">
+        <androidx.recyclerview.widget.RecyclerView
+            android:overScrollMode="never"
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </com.lcodecore.tkrefreshlayout.TwinklingRefreshLayout>
+
+
+    <include android:layout_width="match_parent"
+        layout="@layout/state_on_empty"
+        android:id="@+id/emptyView"
+        android:visibility="gone"
+        android:layout_height="match_parent"/>
+    <include android:layout_width="match_parent"
+        layout="@layout/state_on_error"
+        android:id="@+id/errorView"
+        android:visibility="gone"
+        android:layout_height="match_parent"/>
+    <include android:layout_width="match_parent"
+        layout="@layout/state_on_loading"
+        android:id="@+id/loadingView"
+        android:layout_height="match_parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
